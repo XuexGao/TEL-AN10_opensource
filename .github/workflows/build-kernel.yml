@@ -38,8 +38,8 @@ jobs:
           rm -rf ../out
           mkdir -p ../out
           cp arch/arm64/configs/merge_denver_defconfig ../out/.config
-          make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
-            olddefconfig 2>&1 | tee -a ../out/defconfig.log
+          printf '%s\n' 'Using the repository-provided merge_denver_defconfig' \
+            | tee ../out/defconfig.log
 
       - name: Build kernel
         working-directory: Code_Opensource/kernel
