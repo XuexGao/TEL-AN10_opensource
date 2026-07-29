@@ -26,7 +26,7 @@ jobs:
             bc bison build-essential flex gcc-aarch64-linux-gnu \
             libssl-dev libelf-dev device-tree-compiler cpio rsync
 
-      - name: Build kernel
+      - name: Prepare kernel configuration
         working-directory: Code_Opensource/kernel
         env:
           ARCH: arm64
@@ -36,15 +36,34 @@ jobs:
         run: |
           set -o pipefail
           rm -rf ../out
-          make O=../out merge_denver_defconfig
-          make O=../out -j"$(nproc)" 2>&1 | tee ../out/build.log
-          make O=../out modules_install INSTALL_MOD_PATH=../out/modules
+          make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+            merge_denver_defconfig 2>&1 | tee ../out/defconfig.log
+          make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+            olddefconfig 2>&1 | tee -a ../out/defconfig.log
+
+      - name: Build kernel
+        working-directory: Code_Opensource/kernel
+        env:
+          ARCH: arm64
+          CROSS_COMPILE: aarch64-linux-gnu-
+          KBUILD_BUILD_USER: github-actions
+          KBUILD_BUILD_HOST: github-actions
+        run: |
+          set -o pipefail
+          make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+            V=1 -j"$(nproc)" 2>&1 | tee ../out/build.log
+          make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+            modules_install INSTALL_MOD_PATH=../out/modules 2>&1 | tee ../out/modules.log
 
       - name: Collect build outputs
         if: always()
         run: |
           mkdir -p artifact
+          printf 'commit=%s\n' '${{ github.sha }}' > artifact/ci-context.txt
+          printf 'runner=%s\n' '${{ runner.os }}' >> artifact/ci-context.txt
+          cp -a Code_Opensource/out/defconfig.log artifact/ 2>/dev/null || true
           cp -a Code_Opensource/out/build.log artifact/ 2>/dev/null || true
+          cp -a Code_Opensource/out/modules.log artifact/ 2>/dev/null || true
           cp -a Code_Opensource/out/.config artifact/ 2>/dev/null || true
           cp -a Code_Opensource/out/arch/arm64/boot/Image artifact/ 2>/dev/null || true
           cp -a Code_Opensource/out/arch/arm64/boot/Image.gz artifact/ 2>/dev/null || true
@@ -52,12 +71,11 @@ jobs:
           if [ -d Code_Opensource/out/modules ]; then
             cp -a Code_Opensource/out/modules artifact/
           fi
-          test -f artifact/Image || test -f artifact/Image.gz || test -f artifact/Image.gz-dtb
-
       - name: Upload kernel artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: tel-an10-kernel-${{ github.sha }}
-          path: artifact
-          if-no-files-found: error
+          path: artifact/**
+          include-hidden-files: true
+          if-no-files-found: warn
