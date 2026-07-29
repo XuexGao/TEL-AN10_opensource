@@ -31,6 +31,9 @@ jobs:
         env:
           ARCH: arm64
           CROSS_COMPILE: aarch64-linux-gnu-
+          HOSTCC: gcc
+          HOSTCXX: g++
+          CC: aarch64-linux-gnu-gcc
           KBUILD_BUILD_USER: github-actions
           KBUILD_BUILD_HOST: github-actions
         run: |
@@ -39,6 +42,7 @@ jobs:
           mkdir -p ../out
           cp arch/arm64/configs/merge_denver_defconfig ../out/.config
           make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+            HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
             olddefconfig 2>&1 | tee ../out/defconfig.log
 
@@ -47,13 +51,18 @@ jobs:
         env:
           ARCH: arm64
           CROSS_COMPILE: aarch64-linux-gnu-
+          HOSTCC: gcc
+          HOSTCXX: g++
+          CC: aarch64-linux-gnu-gcc
           KBUILD_BUILD_USER: github-actions
           KBUILD_BUILD_HOST: github-actions
         run: |
           set -o pipefail
           make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+            HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
             V=1 -j"$(nproc)" 2>&1 | tee ../out/build.log
           make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+            HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
             modules_install INSTALL_MOD_PATH=../out/modules 2>&1 | tee ../out/modules.log
 
       - name: Collect build outputs
