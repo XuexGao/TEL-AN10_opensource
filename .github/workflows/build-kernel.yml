@@ -41,14 +41,15 @@ jobs:
           KBUILD_BUILD_HOST: github-actions
         run: |
           set -o pipefail
-          rm -rf ../out
-          mkdir -p ../out
-          cp arch/arm64/configs/merge_denver_defconfig ../out/.config
-          make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+          rm -rf ../ci-out
+          mkdir -p ../ci-out
+          rm -f .config
+          cp arch/arm64/configs/merge_denver_defconfig .config
+          make ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
             KCFLAGS="$KCFLAGS" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
-            olddefconfig 2>&1 | tee ../out/defconfig.log
+            olddefconfig 2>&1 | tee ../ci-out/defconfig.log
 
       - name: Build kernel
         working-directory: s/Code_Opensource/kernel
@@ -63,16 +64,16 @@ jobs:
           KBUILD_BUILD_HOST: github-actions
         run: |
           set -o pipefail
-          make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+          make ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
             KCFLAGS="$KCFLAGS" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
-            V=1 -j"$(nproc)" 2>&1 | tee ../out/build.log
-          make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+            V=1 -j"$(nproc)" 2>&1 | tee ../ci-out/build.log
+          make ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
             KCFLAGS="$KCFLAGS" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
-            modules_install INSTALL_MOD_PATH=../out/modules 2>&1 | tee ../out/modules.log
+            modules_install INSTALL_MOD_PATH=../ci-out/modules 2>&1 | tee ../ci-out/modules.log
 
       - name: Collect build outputs
         if: always()
@@ -80,15 +81,15 @@ jobs:
           mkdir -p artifact
           printf 'commit=%s\n' '${{ github.sha }}' > artifact/ci-context.txt
           printf 'runner=%s\n' '${{ runner.os }}' >> artifact/ci-context.txt
-          cp -a s/Code_Opensource/out/defconfig.log artifact/ 2>/dev/null || true
-          cp -a s/Code_Opensource/out/build.log artifact/ 2>/dev/null || true
-          cp -a s/Code_Opensource/out/modules.log artifact/ 2>/dev/null || true
-          cp -a s/Code_Opensource/out/.config artifact/ 2>/dev/null || true
-          cp -a s/Code_Opensource/out/arch/arm64/boot/Image artifact/ 2>/dev/null || true
-          cp -a s/Code_Opensource/out/arch/arm64/boot/Image.gz artifact/ 2>/dev/null || true
-          cp -a s/Code_Opensource/out/arch/arm64/boot/Image.gz-dtb artifact/ 2>/dev/null || true
-          if [ -d s/Code_Opensource/out/modules ]; then
-            cp -a s/Code_Opensource/out/modules artifact/
+          cp -a s/Code_Opensource/ci-out/defconfig.log artifact/ 2>/dev/null || true
+          cp -a s/Code_Opensource/ci-out/build.log artifact/ 2>/dev/null || true
+          cp -a s/Code_Opensource/ci-out/modules.log artifact/ 2>/dev/null || true
+          cp -a s/Code_Opensource/kernel/.config artifact/ 2>/dev/null || true
+          cp -a s/Code_Opensource/kernel/arch/arm64/boot/Image artifact/ 2>/dev/null || true
+          cp -a s/Code_Opensource/kernel/arch/arm64/boot/Image.gz artifact/ 2>/dev/null || true
+          cp -a s/Code_Opensource/kernel/arch/arm64/boot/Image.gz-dtb artifact/ 2>/dev/null || true
+          if [ -d s/Code_Opensource/ci-out/modules ]; then
+            cp -a s/Code_Opensource/ci-out/modules artifact/
           fi
       - name: Upload kernel artifacts
         if: always()
