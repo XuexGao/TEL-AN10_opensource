@@ -36,8 +36,8 @@ jobs:
         run: |
           set -o pipefail
           rm -rf ../out
-          make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
-            merge_denver_defconfig 2>&1 | tee ../out/defconfig.log
+          mkdir -p ../out
+          cp arch/arm64/configs/merge_denver_defconfig ../out/.config
           make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             olddefconfig 2>&1 | tee -a ../out/defconfig.log
 
