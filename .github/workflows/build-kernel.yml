@@ -24,7 +24,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y \
             bc bison build-essential flex gcc-aarch64-linux-gnu \
-            libssl-dev libelf-dev device-tree-compiler cpio rsync
+            libssl-dev libelf-dev libncurses-dev device-tree-compiler cpio rsync
 
       - name: Prepare kernel configuration
         working-directory: Code_Opensource/kernel
@@ -39,7 +39,8 @@ jobs:
           mkdir -p ../out
           cp arch/arm64/configs/merge_denver_defconfig ../out/.config
           make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
-            HOSTCFLAGS="-Wno-error" olddefconfig 2>&1 | tee ../out/defconfig.log
+            HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
+            olddefconfig 2>&1 | tee ../out/defconfig.log
 
       - name: Build kernel
         working-directory: Code_Opensource/kernel
