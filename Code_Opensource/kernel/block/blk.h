@@ -245,10 +245,10 @@ static inline void elv_deactivate_rq(struct request_queue *q, struct request *rq
 void __elevator_exit(struct request_queue *, struct elevator_queue *);
 
 static inline void elevator_exit(struct request_queue *q,
-		struct elevator_queue *e)
+	struct elevator_queue *e)
 {
 	blk_mq_sched_free_requests(q);
-	elevator_exit(q, e);
+	__elevator_exit(q, e);
 }
 
 struct hd_struct *__disk_get_part(struct gendisk *disk, int partno);
