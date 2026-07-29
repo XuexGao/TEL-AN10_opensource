@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+        with:
+          path: s
 
       - name: Install build dependencies
         run: |
@@ -27,13 +29,14 @@ jobs:
             libssl-dev libelf-dev libncurses-dev device-tree-compiler cpio rsync
 
       - name: Prepare kernel configuration
-        working-directory: Code_Opensource/kernel
+        working-directory: s/Code_Opensource/kernel
         env:
           ARCH: arm64
           CROSS_COMPILE: aarch64-linux-gnu-
           HOSTCC: gcc
           HOSTCXX: g++
           CC: aarch64-linux-gnu-gcc
+          KCFLAGS: -Wno-error=strict-prototypes
           KBUILD_BUILD_USER: github-actions
           KBUILD_BUILD_HOST: github-actions
         run: |
@@ -43,27 +46,31 @@ jobs:
           cp arch/arm64/configs/merge_denver_defconfig ../out/.config
           make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
+            KCFLAGS="$KCFLAGS" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
             olddefconfig 2>&1 | tee ../out/defconfig.log
 
       - name: Build kernel
-        working-directory: Code_Opensource/kernel
+        working-directory: s/Code_Opensource/kernel
         env:
           ARCH: arm64
           CROSS_COMPILE: aarch64-linux-gnu-
           HOSTCC: gcc
           HOSTCXX: g++
           CC: aarch64-linux-gnu-gcc
+          KCFLAGS: -Wno-error=strict-prototypes
           KBUILD_BUILD_USER: github-actions
           KBUILD_BUILD_HOST: github-actions
         run: |
           set -o pipefail
           make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
+            KCFLAGS="$KCFLAGS" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
             V=1 -j"$(nproc)" 2>&1 | tee ../out/build.log
           make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
+            KCFLAGS="$KCFLAGS" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
             modules_install INSTALL_MOD_PATH=../out/modules 2>&1 | tee ../out/modules.log
 
@@ -73,15 +80,15 @@ jobs:
           mkdir -p artifact
           printf 'commit=%s\n' '${{ github.sha }}' > artifact/ci-context.txt
           printf 'runner=%s\n' '${{ runner.os }}' >> artifact/ci-context.txt
-          cp -a Code_Opensource/out/defconfig.log artifact/ 2>/dev/null || true
-          cp -a Code_Opensource/out/build.log artifact/ 2>/dev/null || true
-          cp -a Code_Opensource/out/modules.log artifact/ 2>/dev/null || true
-          cp -a Code_Opensource/out/.config artifact/ 2>/dev/null || true
-          cp -a Code_Opensource/out/arch/arm64/boot/Image artifact/ 2>/dev/null || true
-          cp -a Code_Opensource/out/arch/arm64/boot/Image.gz artifact/ 2>/dev/null || true
-          cp -a Code_Opensource/out/arch/arm64/boot/Image.gz-dtb artifact/ 2>/dev/null || true
-          if [ -d Code_Opensource/out/modules ]; then
-            cp -a Code_Opensource/out/modules artifact/
+          cp -a s/Code_Opensource/out/defconfig.log artifact/ 2>/dev/null || true
+          cp -a s/Code_Opensource/out/build.log artifact/ 2>/dev/null || true
+          cp -a s/Code_Opensource/out/modules.log artifact/ 2>/dev/null || true
+          cp -a s/Code_Opensource/out/.config artifact/ 2>/dev/null || true
+          cp -a s/Code_Opensource/out/arch/arm64/boot/Image artifact/ 2>/dev/null || true
+          cp -a s/Code_Opensource/out/arch/arm64/boot/Image.gz artifact/ 2>/dev/null || true
+          cp -a s/Code_Opensource/out/arch/arm64/boot/Image.gz-dtb artifact/ 2>/dev/null || true
+          if [ -d s/Code_Opensource/out/modules ]; then
+            cp -a s/Code_Opensource/out/modules artifact/
           fi
       - name: Upload kernel artifacts
         if: always()
