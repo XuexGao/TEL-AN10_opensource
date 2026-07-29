@@ -1,0 +1,63 @@
+name: Build ARM64 kernel
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "Code_Opensource/kernel/**"
+      - ".github/workflows/build-kernel.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            bc bison build-essential flex gcc-aarch64-linux-gnu \
+            libssl-dev libelf-dev device-tree-compiler cpio rsync
+
+      - name: Build kernel
+        working-directory: Code_Opensource/kernel
+        env:
+          ARCH: arm64
+          CROSS_COMPILE: aarch64-linux-gnu-
+          KBUILD_BUILD_USER: github-actions
+          KBUILD_BUILD_HOST: github-actions
+        run: |
+          set -o pipefail
+          rm -rf ../out
+          make O=../out merge_denver_defconfig
+          make O=../out -j"$(nproc)" 2>&1 | tee ../out/build.log
+          make O=../out modules_install INSTALL_MOD_PATH=../out/modules
+
+      - name: Collect build outputs
+        if: always()
+        run: |
+          mkdir -p artifact
+          cp -a Code_Opensource/out/build.log artifact/ 2>/dev/null || true
+          cp -a Code_Opensource/out/.config artifact/ 2>/dev/null || true
+          cp -a Code_Opensource/out/arch/arm64/boot/Image artifact/ 2>/dev/null || true
+          cp -a Code_Opensource/out/arch/arm64/boot/Image.gz artifact/ 2>/dev/null || true
+          cp -a Code_Opensource/out/arch/arm64/boot/Image.gz-dtb artifact/ 2>/dev/null || true
+          if [ -d Code_Opensource/out/modules ]; then
+            cp -a Code_Opensource/out/modules artifact/
+          fi
+          test -f artifact/Image || test -f artifact/Image.gz || test -f artifact/Image.gz-dtb
+
+      - name: Upload kernel artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tel-an10-kernel-${{ github.sha }}
+          path: artifact
+          if-no-files-found: error
