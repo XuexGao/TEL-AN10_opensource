@@ -60,9 +60,11 @@ jobs:
           set -o pipefail
           make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
+            HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
             V=1 -j"$(nproc)" 2>&1 | tee ../out/build.log
           make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
+            HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
             modules_install INSTALL_MOD_PATH=../out/modules 2>&1 | tee ../out/modules.log
 
       - name: Collect build outputs
