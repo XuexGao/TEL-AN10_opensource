@@ -83,6 +83,10 @@ jobs:
           # for (int i = ...) { ... }  for (i = ...) → i undeclared
           sed -i 's/for (i = 0; i < gpio_config_size; i++)/for (int i = 0; i < gpio_config_size; i++)/' \
             /tmp/kernel/drivers/media/huawei/camera/platform/denver/sensor_common.c
+          # Fix UFS inline function without body – GCC needs the body to
+          # inline, so remove the keyword so it uses the external definition.
+          sed -i 's/^inline u8 ufshcd_scsi_to_upiu_lun/u8 ufshcd_scsi_to_upiu_lun/' \
+            /tmp/kernel/drivers/scsi/ufs/ufshcd.h
           env -i HOME="$HOME" PATH="$PATH" USER="$USER" \
             ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
