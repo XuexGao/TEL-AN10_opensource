@@ -48,7 +48,7 @@ jobs:
           HOSTCC: gcc
           HOSTCXX: g++
           CC: aarch64-linux-gnu-gcc
-          KCFLAGS: -Wno-error=strict-prototypes
+          KCFLAGS: -Wno-error=strict-prototypes -std=gnu99
           KBUILD_BUILD_USER: github-actions
           KBUILD_BUILD_HOST: github-actions
           HOME: /home/runner
@@ -99,7 +99,7 @@ jobs:
           HOSTCC: gcc
           HOSTCXX: g++
           CC: aarch64-linux-gnu-gcc
-          KCFLAGS: -Wno-error=strict-prototypes
+          KCFLAGS: -Wno-error=strict-prototypes -std=gnu99
           KBUILD_BUILD_USER: github-actions
           KBUILD_BUILD_HOST: github-actions
           HOME: /home/runner
