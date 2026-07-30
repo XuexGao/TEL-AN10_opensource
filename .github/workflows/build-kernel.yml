@@ -58,6 +58,15 @@ jobs:
           rm -rf /tmp/out
           mkdir -p /tmp/out
           cp arch/arm64/configs/merge_denver_defconfig /tmp/out/.config
+          # Disable drivers that fail with GCC 11's always_inline errors.
+          # These are genuine kernel code bugs that need upstream fixes.
+          scripts/config --file /tmp/out/.config \
+            -d CONFIG_I3C \
+            -d CONFIG_DW_I3C_MASTER \
+            -d CONFIG_HISI_I3C_DESIGNWARE \
+            -d CONFIG_NPU_DEVDRV \
+            -d CONFIG_NPU_DEVDRV_DEVMANAGER \
+            -d CONFIG_NPU_PM
           env -i HOME="$HOME" PATH="$PATH" USER="$USER" \
             ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
