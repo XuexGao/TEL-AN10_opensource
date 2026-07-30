@@ -79,6 +79,10 @@ jobs:
             -d CONFIG_NPUFREQ_PM_QOS \
             -d CONFIG_THERMAL_NPU_HOTPLUG \
             -d CONFIG_THERMAL_NPU
+          # Fix C99 for-loop scoping issue in camera driver:
+          # for (int i = ...) { ... }  for (i = ...) → i undeclared
+          sed -i 's/for (i = 0; i < gpio_config_size; i++)/for (int i = 0; i < gpio_config_size; i++)/' \
+            /tmp/kernel/drivers/media/huawei/camera/platform/denver/sensor_common.c
           env -i HOME="$HOME" PATH="$PATH" USER="$USER" \
             ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
