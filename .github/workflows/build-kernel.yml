@@ -28,8 +28,42 @@ jobs:
             bc bison build-essential flex gcc-aarch64-linux-gnu \
             libssl-dev libelf-dev libncurses-dev device-tree-compiler cpio rsync
 
+      - name: Patch kernel build system for long command lines
+        run: |
+          python3 << 'PYEOF'
+filepath = 's/Code_Opensource/kernel/scripts/Makefile.build'
+with open(filepath) as f:
+    content = f.read()
+
+old = '$(cmd_make_builtin) $@ $(filter $(obj-y), $^)'
+new = (
+    '$(file >$(obj)/.$(notdir $@).cmdline,$(filter $(obj-y), $^)) \\\n'
+    '\t\t      $(cmd_make_builtin) $@ @$(obj)/.$(notdir $@).cmdline'
+)
+if old in content:
+    content = content.replace(old, new)
+    with open(filepath, 'w') as f:
+        f.write(content)
+    print("Patch applied successfully")
+else:
+    print("WARNING: Pattern not found - may already be patched")
+    for line in content.split('\n'):
+        if 'cmd_link_o_target' in line:
+            print(f'  {line}')
+PYEOF
+          echo "=== Verification ==="
+          grep -A5 'cmd_link_o_target' s/Code_Opensource/kernel/scripts/Makefile.build
+
+      # On ubuntu-22.04 the build path is very long, which combined with
+      # all the -I flags can overflow the command-line limit.  We create
+      # a symlink at /k that points directly into the kernel source to
+      # keep $(CURDIR) short.
+      - name: Create short build path
+        run: |
+          ln -sf "$PWD/s/Code_Opensource/kernel" /tmp/kernel
+
       - name: Prepare kernel configuration
-        working-directory: s/Code_Opensource/kernel
+        working-directory: /tmp/kernel
         env:
           ARCH: arm64
           CROSS_COMPILE: aarch64-linux-gnu-
@@ -41,17 +75,17 @@ jobs:
           KBUILD_BUILD_HOST: github-actions
         run: |
           set -o pipefail
-          rm -rf ../out
-          mkdir -p ../out
-          cp arch/arm64/configs/merge_denver_defconfig ../out/.config
-          make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+          rm -rf /tmp/out
+          mkdir -p /tmp/out
+          cp arch/arm64/configs/merge_denver_defconfig /tmp/out/.config
+          make O=/tmp/out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
             KCFLAGS="$KCFLAGS" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
-            olddefconfig 2>&1 | tee ../out/defconfig.log
+            olddefconfig 2>&1 | tee /tmp/out/defconfig.log
 
       - name: Build kernel
-        working-directory: s/Code_Opensource/kernel
+        working-directory: /tmp/kernel
         env:
           ARCH: arm64
           CROSS_COMPILE: aarch64-linux-gnu-
@@ -63,16 +97,16 @@ jobs:
           KBUILD_BUILD_HOST: github-actions
         run: |
           set -o pipefail
-          make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+          make O=/tmp/out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
             KCFLAGS="$KCFLAGS" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
-            KBUILD_ABS_SRCTREE=0 V=1 -j"$(nproc)" 2>&1 | tee ../out/build.log
-          make O=../out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+            V=1 -j"$(nproc)" 2>&1 | tee /tmp/out/build.log
+          make O=/tmp/out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
             KCFLAGS="$KCFLAGS" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
-            KBUILD_ABS_SRCTREE=0 modules_install INSTALL_MOD_PATH=../out/modules 2>&1 | tee ../out/modules.log
+            modules_install INSTALL_MOD_PATH=/tmp/out/modules 2>&1 | tee /tmp/out/modules.log
 
       - name: Collect build outputs
         if: always()
@@ -80,15 +114,15 @@ jobs:
           mkdir -p artifact
           printf 'commit=%s\n' '${{ github.sha }}' > artifact/ci-context.txt
           printf 'runner=%s\n' '${{ runner.os }}' >> artifact/ci-context.txt
-          cp -a s/Code_Opensource/out/defconfig.log artifact/ 2>/dev/null || true
-          cp -a s/Code_Opensource/out/build.log artifact/ 2>/dev/null || true
-          cp -a s/Code_Opensource/out/modules.log artifact/ 2>/dev/null || true
-          cp -a s/Code_Opensource/out/.config artifact/ 2>/dev/null || true
-          cp -a s/Code_Opensource/out/arch/arm64/boot/Image artifact/ 2>/dev/null || true
-          cp -a s/Code_Opensource/out/arch/arm64/boot/Image.gz artifact/ 2>/dev/null || true
-          cp -a s/Code_Opensource/out/arch/arm64/boot/Image.gz-dtb artifact/ 2>/dev/null || true
-          if [ -d s/Code_Opensource/out/modules ]; then
-            cp -a s/Code_Opensource/out/modules artifact/
+          cp -a /tmp/out/defconfig.log artifact/ 2>/dev/null || true
+          cp -a /tmp/out/build.log artifact/ 2>/dev/null || true
+          cp -a /tmp/out/modules.log artifact/ 2>/dev/null || true
+          cp -a /tmp/out/.config artifact/ 2>/dev/null || true
+          cp -a /tmp/out/arch/arm64/boot/Image artifact/ 2>/dev/null || true
+          cp -a /tmp/out/arch/arm64/boot/Image.gz artifact/ 2>/dev/null || true
+          cp -a /tmp/out/arch/arm64/boot/Image.gz-dtb artifact/ 2>/dev/null || true
+          if [ -d /tmp/out/modules ]; then
+            cp -a /tmp/out/modules artifact/
           fi
       - name: Upload kernel artifacts
         if: always()
