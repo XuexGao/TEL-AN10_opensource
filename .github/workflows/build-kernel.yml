@@ -87,6 +87,9 @@ jobs:
           # inline, so remove the keyword so it uses the external definition.
           sed -i 's/^inline u8 ufshcd_scsi_to_upiu_lun/u8 ufshcd_scsi_to_upiu_lun/' \
             /tmp/kernel/drivers/scsi/ufs/ufshcd.h
+          # Fix VLA initialization in display driver (C99 doesn't allow it)
+          sed -i 's/char command\[max_buf\] = {0};/char command[max_buf]; memset(command, 0, max_buf);/' \
+            /tmp/kernel/drivers/video/fbdev/hisi/dss/product/attrs/hisi_fb_attrs.c
           env -i HOME="$HOME" PATH="$PATH" USER="$USER" \
             ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
