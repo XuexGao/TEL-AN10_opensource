@@ -28,36 +28,10 @@ jobs:
             bc bison build-essential flex gcc-aarch64-linux-gnu \
             libssl-dev libelf-dev libncurses-dev device-tree-compiler cpio rsync
 
-      - name: Patch kernel build system for long command lines
-        run: |
-          python3 << 'PYEOF'
-filepath = 's/Code_Opensource/kernel/scripts/Makefile.build'
-with open(filepath) as f:
-    content = f.read()
-
-old = '$(cmd_make_builtin) $@ $(filter $(obj-y), $^)'
-new = (
-    '$(file >$(obj)/.$(notdir $@).cmdline,$(filter $(obj-y), $^)) \\\n'
-    '\t\t      $(cmd_make_builtin) $@ @$(obj)/.$(notdir $@).cmdline'
-)
-if old in content:
-    content = content.replace(old, new)
-    with open(filepath, 'w') as f:
-        f.write(content)
-    print("Patch applied successfully")
-else:
-    print("WARNING: Pattern not found - may already be patched")
-    for line in content.split('\n'):
-        if 'cmd_link_o_target' in line:
-            print(f'  {line}')
-PYEOF
-          echo "=== Verification ==="
-          grep -A5 'cmd_link_o_target' s/Code_Opensource/kernel/scripts/Makefile.build
-
       # On ubuntu-22.04 the build path is very long, which combined with
       # all the -I flags can overflow the command-line limit.  We create
-      # a symlink at /k that points directly into the kernel source to
-      # keep $(CURDIR) short.
+      # a symlink at /tmp/kernel that points directly into the kernel
+      # source to keep $(CURDIR) short.
       - name: Create short build path
         run: |
           ln -sf "$PWD/s/Code_Opensource/kernel" /tmp/kernel
