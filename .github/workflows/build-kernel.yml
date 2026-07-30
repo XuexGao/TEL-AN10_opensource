@@ -28,14 +28,18 @@ jobs:
             bc bison build-essential flex gcc-aarch64-linux-gnu \
             libssl-dev libelf-dev libncurses-dev device-tree-compiler cpio rsync
 
-      # On ubuntu-22.04 the build path is very long, which combined with
-      # all the -I flags can overflow the command-line limit.  We create
-      # a symlink at /tmp/kernel that points directly into the kernel
-      # source to keep $(CURDIR) short.
+      # On ubuntu-22.04, the long build path combined with 50+ -I flags
+      # in the HiSilicon modem driver overflows ARG_MAX (~2 MB including
+      # the runner environment).  A symlink won't help because GNU Make
+      # resolves $(CURDIR) via getcwd() to the real path, so we use a
+      # bind mount to create a genuinely short path.
       - name: Create short build path
         run: |
-          ln -sf "$PWD/s/Code_Opensource/kernel" /tmp/kernel
+          mkdir -p /tmp/kernel
+          sudo mount --bind "$PWD/s/Code_Opensource/kernel" /tmp/kernel
 
+      # Strip the huge CI environment so the compiler command line +
+      # inherited environment stays well under ARG_MAX.
       - name: Prepare kernel configuration
         working-directory: /tmp/kernel
         env:
@@ -47,12 +51,20 @@ jobs:
           KCFLAGS: -Wno-error=strict-prototypes
           KBUILD_BUILD_USER: github-actions
           KBUILD_BUILD_HOST: github-actions
+          HOME: /home/runner
+          PATH: /usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
         run: |
           set -o pipefail
           rm -rf /tmp/out
           mkdir -p /tmp/out
           cp arch/arm64/configs/merge_denver_defconfig /tmp/out/.config
-          make O=/tmp/out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+          env -i HOME="$HOME" PATH="$PATH" USER="$USER" \
+            ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+            HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
+            KCFLAGS="$KCFLAGS" \
+            KBUILD_BUILD_USER="$KBUILD_BUILD_USER" \
+            KBUILD_BUILD_HOST="$KBUILD_BUILD_HOST" \
+            make O=/tmp/out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
             KCFLAGS="$KCFLAGS" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
@@ -69,14 +81,28 @@ jobs:
           KCFLAGS: -Wno-error=strict-prototypes
           KBUILD_BUILD_USER: github-actions
           KBUILD_BUILD_HOST: github-actions
+          HOME: /home/runner
+          PATH: /usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
         run: |
           set -o pipefail
-          make O=/tmp/out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+          env -i HOME="$HOME" PATH="$PATH" USER="$USER" \
+            ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+            HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
+            KCFLAGS="$KCFLAGS" \
+            KBUILD_BUILD_USER="$KBUILD_BUILD_USER" \
+            KBUILD_BUILD_HOST="$KBUILD_BUILD_HOST" \
+            make O=/tmp/out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
             KCFLAGS="$KCFLAGS" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
             V=1 -j"$(nproc)" 2>&1 | tee /tmp/out/build.log
-          make O=/tmp/out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+          env -i HOME="$HOME" PATH="$PATH" USER="$USER" \
+            ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
+            HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
+            KCFLAGS="$KCFLAGS" \
+            KBUILD_BUILD_USER="$KBUILD_BUILD_USER" \
+            KBUILD_BUILD_HOST="$KBUILD_BUILD_HOST" \
+            make O=/tmp/out ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
             KCFLAGS="$KCFLAGS" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
