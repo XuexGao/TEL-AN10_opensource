@@ -533,6 +533,7 @@ EXTRA_CFLAGS += -Idrivers/video/hisi/dss \
 		-Idrivers/video/hisi/dss/overlay \
 		-Idrivers/video/hisi/panel \
 		-Idrivers/video/hisi \
+		-Idrivers/video/fbdev/hisi/dss \
 		-Iinclude \
 		-Idrivers/staging/android \
 		-Idrivers/devkit/lcdkit/lcdkit1.0/include \

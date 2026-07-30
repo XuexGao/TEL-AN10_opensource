@@ -38,7 +38,7 @@
 #include <linux/poll.h>
 #include <linux/miscdevice.h>
 #include <linux/spinlock.h>
-#include <st21nfc.h>
+#include "st21nfc.h"
 #include <linux/of_gpio.h>
 #include <linux/mfd/hisi_pmic.h>
 #include <linux/clk.h>

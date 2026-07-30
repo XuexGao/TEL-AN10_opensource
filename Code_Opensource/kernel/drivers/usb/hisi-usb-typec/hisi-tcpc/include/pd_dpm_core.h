@@ -17,11 +17,11 @@
 #ifndef PD_DPM_CORE_H
 #define PD_DPM_CORE_H
 
-#include "include/tcpci.h"
-#include "include/pd_core.h"
-#include "include/pd_tcpm.h"
-#include "include/pd_dpm_pdo_select.h"
-#include "include/pd_process_evt.h"
+#include "tcpci.h"
+#include "pd_core.h"
+#include "pd_tcpm.h"
+#include "pd_dpm_pdo_select.h"
+#include "pd_process_evt.h"
 
 /* ---- MISC ---- */
 int hisi_pd_dpm_core_init(pd_port_t *pd_port);

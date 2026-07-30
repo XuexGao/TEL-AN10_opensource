@@ -15,4 +15,5 @@ EXTRA_CFLAGS += -Idrivers/video/fbdev/hisi/dss \
 		-Idrivers/hisi/tzdriver \
 		-Idrivers/base \
 		-Idrivers/devkit/lcdkit/lcdkit3.0/kernel/common/include \
-		-Idrivers/devkit/lcdkit/lcdkit3.0/kernel/hisi/include
+		-Idrivers/devkit/lcdkit/lcdkit3.0/kernel/hisi/include \
+		-Idrivers/devkit/lcdkit/lcdkit3.0/kernel/hisi/adapt

@@ -116,7 +116,7 @@ void da_separate_reg_addr_unmap(void)
 #define RESERVED_LOCK_OFFSET 0x90
 #define INTER_LOCK_TIMEOUT_CNT 12
 
-static void intercore_try_lock()
+static void intercore_try_lock(void)
 {
 	uint32_t time_cnt = INTER_LOCK_TIMEOUT_CNT;
 	while(time_cnt) {
@@ -135,7 +135,7 @@ static void intercore_try_lock()
 	writel(1, reg_base_addr[ASPCFG] + RESERVED_LOCK_OFFSET);
 }
 
-static void intercore_unlock()
+static void intercore_unlock(void)
 {
 	writel(0, reg_base_addr[ASPCFG] + RESERVED_LOCK_OFFSET);
 }

@@ -30,7 +30,7 @@
 #include <linux/slab.h>
 
 #include <linux/hisi/rdr_pub.h>
-#include "npu_manager_common.h"
+#include "../../manager/npu_manager_common.h"
 #include "npu_common.h"
 #include "npu_log.h"
 

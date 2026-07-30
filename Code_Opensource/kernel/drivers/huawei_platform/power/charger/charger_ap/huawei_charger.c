@@ -54,7 +54,7 @@
 #ifdef CONFIG_COUL_DRV
 #include <linux/power/hisi/coul/coul_drv.h>
 #endif
-#include <charging_core.h>
+#include "charging_core.h"
 #ifdef CONFIG_SWITCH_FSA9685
 #include <huawei_platform/usb/switch/switch_fsa9685.h>
 #endif

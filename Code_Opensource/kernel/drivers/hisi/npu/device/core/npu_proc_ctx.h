@@ -186,9 +186,9 @@ int npu_proc_alloc_task(struct npu_proc_ctx *proc_ctx, u32 *task_id_ptr);
 
 int npu_proc_free_task(struct npu_proc_ctx *proc_ctx, u32 task_id);
 
-inline u16 npu_get_phase_from_report(struct npu_report *report);
+u16 npu_get_phase_from_report(struct npu_report *report);
 
-inline void npu_set_phase_to_report(struct npu_report *report, u16 val);
+void npu_set_phase_to_report(struct npu_report *report, u16 val);
 
 bool npu_vma_valid(const struct vm_area_struct *vma);
 

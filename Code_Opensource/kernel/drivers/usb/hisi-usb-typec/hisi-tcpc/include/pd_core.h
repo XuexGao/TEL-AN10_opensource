@@ -15,11 +15,11 @@
 #ifndef PD_CORE_H_
 #define PD_CORE_H_
 
-#include "include/tcpci_timer.h"
-#include "include/tcpci_event.h"
-#include "include/pd_dbg_info.h"
-#include "include/tcpci_config.h"
-#include "include/pd_tcpm.h"
+#include "tcpci_timer.h"
+#include "tcpci_event.h"
+#include "pd_dbg_info.h"
+#include "tcpci_config.h"
+#include "pd_tcpm.h"
 #include <linux/hisi/usb/hisi_tcpm.h>
 #include <linux/hisi/usb/hisi_typec.h>
 #include <chipset_common/hwpower/protocol/adapter_protocol_uvdm.h>

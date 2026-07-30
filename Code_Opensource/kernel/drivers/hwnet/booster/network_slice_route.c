@@ -330,7 +330,7 @@ int slice_rules_lookup(struct sock *sk, struct sockaddr *uaddr, u8 protocol)
 	return err;
 }
 
-static struct slice_route_rule *new_rule()
+static struct slice_route_rule *new_rule(void)
 {
 	struct slice_route_rule *rule = kmalloc(sizeof(*rule), GFP_ATOMIC);
 	if (rule == NULL)
@@ -344,7 +344,7 @@ static struct slice_route_rule *new_rule()
 	return rule;
 }
 
-static struct uid_list *new_uid_node()
+static struct uid_list *new_uid_node(void)
 {
 	struct uid_list *uid_node = kmalloc(sizeof(*uid_node), GFP_ATOMIC);
 	if (uid_node == NULL)
@@ -357,7 +357,7 @@ static struct uid_list *new_uid_node()
 	return uid_node;
 }
 
-static struct remote_address *new_addr_node()
+static struct remote_address *new_addr_node(void)
 {
 	struct remote_address *addr_node =
 		kmalloc(sizeof(*addr_node), GFP_ATOMIC);
@@ -539,7 +539,7 @@ static int del_uid_from_rule(struct slice_route_rule *rule, u32 uid)
 	return 0;
 }
 
-static int del_all_slice_rule()
+static int del_all_slice_rule(void)
 {
 	struct slice_route_rule *rule = NULL;
 	struct slice_route_rule *temp = NULL;

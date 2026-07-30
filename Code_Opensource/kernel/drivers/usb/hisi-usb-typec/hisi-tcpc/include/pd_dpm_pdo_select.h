@@ -15,7 +15,7 @@
 #ifndef PD_DPM_PDO_SELECT_H
 #define PD_DPM_PDO_SELECT_H
 
-#include "include/tcpci.h"
+#include "tcpci.h"
 #include <linux/hisi/usb/hisi_tcpm.h>
 #include <linux/hisi/usb/hisi_typec.h>
 

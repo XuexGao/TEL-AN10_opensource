@@ -15,7 +15,7 @@
  */
 
 #include <linux/hisi/usb/android_gadget.h>
-#include "u_ether.h"
+#include "../u_ether.h"
 
 #define HOST_ADD_LEN 18
 #define FILE_MODE 0644

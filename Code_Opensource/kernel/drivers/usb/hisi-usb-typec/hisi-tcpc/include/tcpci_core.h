@@ -27,13 +27,13 @@
 
 #include <linux/hisi/usb/hisi_tcpm.h>
 #include <linux/hisi/usb/hisi_typec.h>
-#include "include/tcpci_timer.h"
-#include "include/tcpci_event.h"
-#include "include/tcpci_config.h"
+#include "tcpci_timer.h"
+#include "tcpci_event.h"
+#include "tcpci_config.h"
 
 #ifdef CONFIG_USB_POWER_DELIVERY_SUPPORT
-#include "include/pd_core.h"
-#include "include/pd_tcpm.h"
+#include "pd_core.h"
+#include "pd_tcpm.h"
 #endif
 
 struct tcpc_device;

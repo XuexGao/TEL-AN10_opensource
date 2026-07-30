@@ -13,7 +13,7 @@
 #include <linux/err.h>
 #include <linux/version.h>
 
-#include "mm_ion_priv.h"
+#include "../mm_ion_priv.h"
 #include "ion.h"
 #include "teek_client_type.h"
 

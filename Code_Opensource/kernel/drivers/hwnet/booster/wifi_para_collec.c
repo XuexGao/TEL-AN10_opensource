@@ -150,7 +150,7 @@ static void update_wifi_para(struct wifi_stat *past,
 	memcpy(past, cur, cnt * sizeof(struct wifi_stat));
 }
 
-static void wifi_para_report()
+static void wifi_para_report(void)
 {
 	struct wifi_res_msg *res = NULL;
 	struct wifi_stat cur[MAX_WIFI_NUM];

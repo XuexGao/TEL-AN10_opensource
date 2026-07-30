@@ -201,7 +201,7 @@ struct dw_i3c_master {
 
 void dw_i3c_master_start_xfer_locked(struct dw_i3c_master *master);
 void dw_i3c_master_end_xfer_locked(struct dw_i3c_master *master, u32 isr);
-inline struct dw_i3c_master *
+struct dw_i3c_master *
 to_dw_i3c_master(struct i3c_master_controller *master);
 int dw_i3c_master_bus_init(struct i3c_master_controller *m);
 void dw_i3c_master_bus_cleanup(struct i3c_master_controller *m);

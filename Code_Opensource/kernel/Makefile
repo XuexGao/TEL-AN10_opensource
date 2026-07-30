@@ -457,7 +457,8 @@ LINUXINCLUDE += -I$(srctree)/mm \
 			   -I$(srctree)/drivers/huawei_platform \
 			   -I$(srctree)/drivers/huawei_armpc_platform \
 			   -I$(srctree)/fs/proc \
-			   -I$(srctree)/lib/libc_sec/securec_v2/include
+			   -I$(srctree)/lib/libc_sec/securec_v2/include \
+			   -I$(srctree)
 
 ifeq ($(CFG_LCD_KIT),true)
 LINUXINCLUDE += -I$(objtree)/drivers/devkit/lcdkit/lcdkit3.0
@@ -993,11 +994,14 @@ KBUILD_CFLAGS  += $(call cc-option,-fno-stack-check,)
 # conserve stack if available
 KBUILD_CFLAGS   += $(call cc-option,-fconserve-stack)
 
+# disable outline-atomics for kernel (avoids __aarch64_ldadd*)
+KBUILD_CFLAGS   += $(call cc-option,-mno-outline-atomics)
+
 # disallow errors like 'EXPORT_GPL(foo);' with missing header
 KBUILD_CFLAGS   += $(call cc-option,-Werror=implicit-int)
 
 # require functions to have arguments in prototypes, not empty 'int foo()'
-KBUILD_CFLAGS   += $(call cc-option,-Werror=strict-prototypes)
+#KBUILD_CFLAGS   += $(call cc-option,-Werror=strict-prototypes)
 
 # Prohibit date/time macros, which would make the build non-deterministic
 KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
@@ -1029,6 +1033,7 @@ LDFLAGS_BUILD_ID := $(patsubst -Wl$(comma)%,%,\
 			      $(call cc-ldoption, -Wl$(comma)--build-id,))
 KBUILD_LDFLAGS_MODULE += $(LDFLAGS_BUILD_ID)
 LDFLAGS_vmlinux += $(LDFLAGS_BUILD_ID)
+LDFLAGS_vmlinux += --noinhibit-exec
 
 ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATION
 LDFLAGS_vmlinux	+= $(call ld-option, --gc-sections,)

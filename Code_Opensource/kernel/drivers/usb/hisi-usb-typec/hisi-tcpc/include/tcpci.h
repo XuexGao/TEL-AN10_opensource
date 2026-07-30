@@ -27,16 +27,16 @@
 #include <linux/delay.h>
 #include <linux/usb/class-dual-role.h>
 
-#include "include/pd_dbg_info.h"
-#include "include/tcpci_core.h"
-#include "include/tcpci_timer.h"
+#include "pd_dbg_info.h"
+#include "tcpci_core.h"
+#include "tcpci_timer.h"
 
 #ifdef CONFIG_USB_POWER_DELIVERY_SUPPORT
-#include "include/pd_core.h"
-#include "include/pd_tcpm.h"
+#include "pd_core.h"
+#include "pd_tcpm.h"
 #endif
 
-#include "../hisi-usb-typec.h"
+#include "../../hisi-usb-typec.h"
 
 void hisi_tcpc_dual_role_instance_changed(
 		struct dual_role_phy_instance *dual_role);

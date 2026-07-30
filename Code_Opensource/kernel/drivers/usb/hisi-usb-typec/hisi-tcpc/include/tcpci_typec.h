@@ -17,7 +17,7 @@
 #ifndef _TCPCI_TYPEC_H
 #define _TCPCI_TYPEC_H
 
-#include "include/tcpci.h"
+#include "tcpci.h"
 
 struct tcpc_device;
 

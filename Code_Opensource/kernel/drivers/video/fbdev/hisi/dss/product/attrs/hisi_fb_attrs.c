@@ -2151,7 +2151,8 @@ static ssize_t dpufb_lcd_func_switch_store(struct device *dev,
 	struct dpu_fb_data_type *dpufd = NULL;
 	struct dpu_fb_panel_data *pdata = NULL;
 	struct dpu_panel_info *pinfo = NULL;
-	char command[max_buf] = {0};
+	char command[max_buf];
+	memset(command, 0, max_buf);
 	ssize_t ret;
 
 	if (dev == NULL) {

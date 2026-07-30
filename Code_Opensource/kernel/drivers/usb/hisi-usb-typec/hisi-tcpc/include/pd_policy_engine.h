@@ -17,9 +17,9 @@
 #ifndef PD_POLICY_ENGINE_H_
 #define PD_POLICY_ENGINE_H_
 
-#include "include/pd_core.h"
-#include "include/pd_tcpm.h"
-#include "include/tcpci_event.h"
+#include "pd_core.h"
+#include "pd_tcpm.h"
+#include "tcpci_event.h"
 
 /* ---- Policy Engine State ---- */
 

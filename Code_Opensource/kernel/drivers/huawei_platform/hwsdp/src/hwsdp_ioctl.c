@@ -17,8 +17,8 @@
 #include <linux/rwsem.h>
 #include <securec.h>
 
-#include "inc/hwsdp_ioctl_teec.h"
-#include "inc/hwsdp_utils.h"
+#include "../inc/hwsdp_ioctl_teec.h"
+#include "../inc/hwsdp_utils.h"
 
 #define HWSDP_FIRST_MINOR 0
 #define HWSDP_MINOR_CNT 1

@@ -759,7 +759,7 @@ void kbase_gmc_walk_region_work(struct work_struct *work)
  * kbase_gmc_work_execute_wait - Wait for the work execution to complete.
  * Return: 0 on success or error.
  */
-static int kbase_gmc_work_execute_wait()
+static int kbase_gmc_work_execute_wait(void)
 {
 	int ret = 0;
 	long timeout_jiff = msecs_to_jiffies(GMC_WORKER_TIMEOUT_MS);

@@ -1704,7 +1704,7 @@ int ufshcd_read_unit_desc_param(struct ufs_hba *hba, int lun,
 int ufshcd_send_vendor_scsi_cmd(struct ufs_hba *hba,
 		struct scsi_device *sdp, unsigned char* cdb, void* buf);
 void ufshcd_set_auto_hibern8_delay(struct ufs_hba *hba, unsigned int value);
-inline u8 ufshcd_scsi_to_upiu_lun(unsigned int scsi_lun);
+u8 ufshcd_scsi_to_upiu_lun(unsigned int scsi_lun);
 int ufshcd_query_flag_retry(struct ufs_hba *hba, enum query_opcode opcode,
 			    enum flag_idn idn, bool *flag_res);
 int ufshcd_query_attr_retry(struct ufs_hba *hba, enum query_opcode opcode,

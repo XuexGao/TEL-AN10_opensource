@@ -1,5 +1,5 @@
 
-#include "inc/hwsdp_ioctl_teec.h"
+#include "../inc/hwsdp_ioctl_teec.h"
 #include <linux/uaccess.h>
 #include <linux/spinlock.h>
 #include <linux/mutex.h>
@@ -7,7 +7,7 @@
 #include <linux/sched.h>
 #include <linux/init.h>
 #include <securec.h>
-#include "inc/hwsdp_utils.h"
+#include "../inc/hwsdp_utils.h"
 
 EXPORT_SYMBOL(saved_command_line);
 

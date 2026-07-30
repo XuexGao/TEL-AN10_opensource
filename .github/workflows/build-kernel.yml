@@ -48,7 +48,7 @@ jobs:
           HOSTCC: gcc
           HOSTCXX: g++
           CC: aarch64-linux-gnu-gcc
-          KCFLAGS: -Wno-error=strict-prototypes -std=gnu99 -Wno-error=implicit-int -fgnu89-inline
+          KCFLAGS: -Wno-error=strict-prototypes -std=gnu99 -Wno-error=implicit-int -fgnu89-inline -mno-outline-atomics
           KBUILD_BUILD_USER: github-actions
           KBUILD_BUILD_HOST: github-actions
           HOME: /home/runner
@@ -79,17 +79,6 @@ jobs:
             -d CONFIG_NPUFREQ_PM_QOS \
             -d CONFIG_THERMAL_NPU_HOTPLUG \
             -d CONFIG_THERMAL_NPU
-          # Fix C99 for-loop scoping issue in camera driver:
-          # for (int i = ...) { ... }  for (i = ...) → i undeclared
-          sed -i 's/for (i = 0; i < gpio_config_size; i++)/for (int i = 0; i < gpio_config_size; i++)/' \
-            /tmp/kernel/drivers/media/huawei/camera/platform/denver/sensor_common.c
-          # Fix UFS inline function without body – GCC needs the body to
-          # inline, so remove the keyword so it uses the external definition.
-          sed -i 's/^inline u8 ufshcd_scsi_to_upiu_lun/u8 ufshcd_scsi_to_upiu_lun/' \
-            /tmp/kernel/drivers/scsi/ufs/ufshcd.h
-          # Fix VLA initialization in display driver (C99 doesn't allow it)
-          sed -i 's/char command\[max_buf\] = {0};/char command[max_buf]; memset(command, 0, max_buf);/' \
-            /tmp/kernel/drivers/video/fbdev/hisi/dss/product/attrs/hisi_fb_attrs.c
           env -i HOME="$HOME" PATH="$PATH" USER="$USER" \
             ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
@@ -110,13 +99,20 @@ jobs:
           HOSTCC: gcc
           HOSTCXX: g++
           CC: aarch64-linux-gnu-gcc
-          KCFLAGS: -Wno-error=strict-prototypes -std=gnu99 -Wno-error=implicit-int -fgnu89-inline
+          KCFLAGS: -Wno-error=strict-prototypes -std=gnu99 -Wno-error=implicit-int -fgnu89-inline -mno-outline-atomics
           KBUILD_BUILD_USER: github-actions
           KBUILD_BUILD_HOST: github-actions
           HOME: /home/runner
           PATH: /usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
         run: |
           set -o pipefail
+          # First pass: build vmlinux.
+          # -mno-outline-atomics avoids __aarch64_ldadd4_sync undefined refs
+          #   with GCC 12+ on arm64.
+          # --noinhibit-exec allows the link to succeed despite "dangerous
+          #   relocation" warnings from pre-compiled MAS_BLK assembly.
+          # -std=gnu99 allows C99 features (for-loop init, mixed decls).
+          # -fgnu89-inline handles GNU inline semantics used by kernel.
           env -i HOME="$HOME" PATH="$PATH" USER="$USER" \
             ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
@@ -127,7 +123,9 @@ jobs:
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
             KCFLAGS="$KCFLAGS" \
             HOSTCFLAGS="-fcommon -Wno-error" HOSTLDFLAGS="-fcommon" \
-            V=1 -j"$(nproc)" 2>&1 | tee /tmp/out/build.log
+            LDFLAGS_vmlinux="--noinhibit-exec" \
+            -j"$(nproc)" 2>&1 | tee /tmp/out/build.log
+          # Second pass: install modules.
           env -i HOME="$HOME" PATH="$PATH" USER="$USER" \
             ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \

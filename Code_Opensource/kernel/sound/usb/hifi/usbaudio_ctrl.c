@@ -125,7 +125,7 @@ static void set_usbaudio_priv_data(struct usbaudio_dsp *pdata)
 	g_usbaudio_hifi = pdata;
 }
 
-static struct usbaudio_dsp *get_usbaudio_priv_data()
+static struct usbaudio_dsp *get_usbaudio_priv_data(void)
 {
 	return g_usbaudio_hifi;
 }

@@ -778,10 +778,11 @@ static int hisi_sensor_power_other_config(sensor_t *s_ctrl,
 static int hisi_sensor_power_config(sensor_t *s_ctrl,
 	struct sensor_power_setting *power_setting, int on_off)
 {
+	int i;
 	int rc = -1;
 	int ldo_config_size = (int)sizeof(g_ldo_config_type_tab) /
 		sizeof(g_ldo_config_type_tab[0]);
-	for (int i = 0; i < ldo_config_size; i++) {
+	for (i = 0; i < ldo_config_size; i++) {
 		if (power_setting->seq_type ==
 			g_ldo_config_type_tab[i].seq_type) {
 			cam_info("%s, seq_type: %u ", __func__,

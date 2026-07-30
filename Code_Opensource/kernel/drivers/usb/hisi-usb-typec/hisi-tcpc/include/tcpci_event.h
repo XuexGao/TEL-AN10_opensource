@@ -20,7 +20,7 @@
 #include <linux/hisi/usb/hisi_tcpm.h>
 #include <linux/hisi/usb/hisi_typec.h>
 
-#include "include/tcpci_timer.h"
+#include "tcpci_timer.h"
 
 #define PD_MSG_BUF_SIZE		(4 * 2)
 #define PD_EVENT_BUF_SIZE	(8 * 2)

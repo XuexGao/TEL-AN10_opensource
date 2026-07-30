@@ -12,7 +12,7 @@
 #define __DA_SEPARATE_TYPE_H__
 
 #include <linux/platform_device.h>
-#include "da_separate_mbhc.h"
+#include <drivers/hisi/da_separate/da_separate_mbhc.h>
 
 enum codec_virtual_addr {
 	VIR0 = 0x0,

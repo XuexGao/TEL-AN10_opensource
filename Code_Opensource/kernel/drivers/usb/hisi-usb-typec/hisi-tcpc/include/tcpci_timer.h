@@ -18,7 +18,7 @@
 #define _TCPC_TIMER_H
 
 #include <linux/kernel.h>
-#include "include/tcpci_config.h"
+#include "tcpci_config.h"
 
 struct tcpc_device;
 

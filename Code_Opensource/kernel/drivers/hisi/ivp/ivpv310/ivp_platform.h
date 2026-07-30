@@ -15,7 +15,7 @@
 #define _IVP_PLATFORM_H_
 
 #include <linux/regulator/consumer.h>
-#include "ivp_common.h"
+#include "../ivp_common.h"
 
 #define LISTENTRY_SIZE                  0x00600000
 

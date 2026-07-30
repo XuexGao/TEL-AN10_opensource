@@ -31,7 +31,7 @@
 #include <linux/mm.h>
 #include <asm/cacheflush.h>
 #include <linux/moduleloader.h>
-#include <zrhung_common.h>
+#include "zrhung_common.h"
 
 #define SCONTEXT "u:r:logserver:s0"
 #define HCFG_VAL_SIZE_MAX ((ZRHUNG_CFG_VAL_LEN_MAX + 1) * ZRHUNG_CFG_ENTRY_NUM)
