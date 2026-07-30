@@ -64,9 +64,21 @@ jobs:
             -d CONFIG_I3C \
             -d CONFIG_DW_I3C_MASTER \
             -d CONFIG_HISI_I3C_DESIGNWARE \
+            -d CONFIG_DEVFREQ_GOV_NPU_PM_QOS \
             -d CONFIG_NPU_DEVDRV \
             -d CONFIG_NPU_DEVDRV_DEVMANAGER \
-            -d CONFIG_NPU_PM
+            -d CONFIG_NPU_DEVDRV_DEVDRIVER \
+            -d CONFIG_NPU_DEVDRV_DEVPLATFORM \
+            -d CONFIG_NPU_DEVDRV_DEVFACILITY \
+            -d CONFIG_NPU_LOG_DEVDRV \
+            -d CONFIG_NPU_PROF_DEVDRV \
+            -d CONFIG_NPU_PM \
+            -d CONFIG_NPUFREQ \
+            -d CONFIG_NPU_PM_AVS_VDM \
+            -d CONFIG_NPU_PM_AVS_NEW_TZONE \
+            -d CONFIG_NPUFREQ_PM_QOS \
+            -d CONFIG_THERMAL_NPU_HOTPLUG \
+            -d CONFIG_THERMAL_NPU
           env -i HOME="$HOME" PATH="$PATH" USER="$USER" \
             ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE" \
             HOSTCC="$HOSTCC" HOSTCXX="$HOSTCXX" CC="$CC" \
